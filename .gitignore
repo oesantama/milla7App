@@ -104,7 +104,7 @@ analyze_files.py
 full_tabs.txt
 conocimiento.txt
 
-# Incluir archivos Excel y CSV en la raíz del proyecto
-!/*.xlsx
-!/*.xls
-!/*.csv
+# Archivos Excel y CSV (no subir al repositorio)
+*.xlsx
+*.xls
+*.csv

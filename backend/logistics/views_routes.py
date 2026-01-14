@@ -102,9 +102,10 @@ class AutoRouteView(views.APIView):
                 return Response({'error': 'No invoices provided'}, status=400)
                 
             # 1. Get Available Vehicles
-            vehiculos = Vehiculo.objects.filter(disponible=True, eliminado=False)
+            # Updated to use MasterEstado relationship
+            vehiculos = Vehiculo.objects.filter(estado__descripcion__iexact='Disponible', eliminado=False)
             if not vehiculos.exists():
-                return Response({'error': 'No vehicles available'}, status=400)
+                return Response({'error': 'No vehicles available (marked as Disponible)'}, status=400)
             
             # 2. Sort Vehicles by Capacity (Larger first?)
             # Handle null cubicaje

@@ -30,7 +30,7 @@ Almacena la información de la flota de transporte.
 | `cubicaje` | DecimalField(6,2) | Capacidad | Nullable |
 | `modelo` | CharField(50) | Modelo/Año | No Null |
 | `tipo_vehiculo` | ForeignKey | -> `core.TipoVehiculo` | Nullable, OnDelete: SET_NULL |
-| `disponible` | BooleanField | Disponibilidad operativa | Default: `True` |
+| `estado` | ForeignKey | -> `maestras.MasterEstado` | Nullable, OnDelete: SET_NULL |
 | `eliminado` | BooleanField | Borrado lógico | Default: `False` |
 | `fecha_creacion` | DateTimeField | Auditoría | AutoNowAdd |
 | `fecha_modificacion` | DateTimeField | Auditoría | AutoNow |

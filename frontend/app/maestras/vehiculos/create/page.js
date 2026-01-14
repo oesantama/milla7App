@@ -12,9 +12,10 @@ export default function CreateVehiculoPage() {
     cubicaje: '',
     modelo: '',
     tipo_vehiculo: '', 
-    disponible: true,
+    estado: '',
   });
   const [tiposVehiculos, setTiposVehiculos] = useState([]);
+  const [estados, setEstados] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { token, isAuthenticated } = useAuth();
@@ -25,6 +26,10 @@ export default function CreateVehiculoPage() {
           axios.get('/api/core/tipos-vehiculos/?estado=true', { headers: { Authorization: `Bearer ${token}` } })
               .then(res => setTiposVehiculos(res.data))
               .catch(err => console.error("Error cargando tipos", err));
+          
+          axios.get('/api/maestras/master-estados/?estado=true', { headers: { Authorization: `Bearer ${token}` } })
+              .then(res => setEstados(res.data))
+              .catch(err => console.error("Error cargando estados", err));
       }
   }, [token]);
 
@@ -39,8 +44,8 @@ export default function CreateVehiculoPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.placa.trim() || !formData.propietario.trim() || !formData.modelo.trim() || !formData.tipo_vehiculo) {
-      setError('Placa, propietario, modelo y tipo son requeridos');
+    if (!formData.placa.trim() || !formData.propietario.trim() || !formData.modelo.trim() || !formData.tipo_vehiculo || !formData.estado) {
+      setError('Placa, propietario, modelo, tipo y estado son requeridos');
       return;
     }
 
@@ -169,16 +174,21 @@ export default function CreateVehiculoPage() {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                name="disponible"
-                checked={formData.disponible}
-                onChange={handleChange}
-                style={styles.checkbox}
-              />
-              <span style={{ marginLeft: '8px' }}>Disponible</span>
+            <label style={styles.label}>
+              Estado <span style={styles.required}>*</span>
             </label>
+             <select
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              style={styles.input}
+              required
+            >
+                <option value="">Seleccione un estado...</option>
+                {estados.map(e => (
+                    <option key={e.id} value={e.id}>{e.descripcion}</option>
+                ))}
+            </select>
           </div>
 
           <div style={styles.buttonGroup}>

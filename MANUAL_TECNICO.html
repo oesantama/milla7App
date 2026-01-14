@@ -53,7 +53,7 @@
             <tr><td>propietario</td><td><span class="type-tag type-text">CharField(100)</span></td><td>Nombre del propietario</td><td>No Null</td></tr>
             <tr><td>cubicaje</td><td><span class="type-tag type-num">DecimalField(6,2)</span></td><td>Capacidad</td><td>Nullable</td></tr>
             <tr><td>tipo_vehiculo</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>core.TipoVehiculo</code></td><td>Nullable, OnDelete: SET_NULL</td></tr>
-            <tr><td>disponible</td><td><span class="type-tag type-bool">BooleanField</span></td><td>Disponibilidad operativa</td><td>Default: True</td></tr>
+            <tr><td>estado</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>maestras.MasterEstado</code></td><td>Nullable, OnDelete: SET_NULL</td></tr>
             <tr><td>eliminado</td><td><span class="type-tag type-bool">BooleanField</span></td><td>Borrado lógico</td><td>Default: False</td></tr>
         </tbody>
     </table>

@@ -58,8 +58,7 @@ export default function VehiculosPage() {
     v.modelo?.toLowerCase().includes(searchTerm.toLowerCase())
   ).sort((a, b) => {
     let aVal = a[sortColumn]; let bVal = b[sortColumn];
-    if (sortColumn === 'disponible') { aVal = aVal ? 1 : 0; bVal = bVal ? 1 : 0; } 
-    else if (sortColumn === 'fecha_creacion' || sortColumn === 'fecha_modificacion') { aVal = new Date(aVal).getTime(); bVal = new Date(bVal).getTime(); } 
+    if (sortColumn === 'fecha_creacion' || sortColumn === 'fecha_modificacion') { aVal = new Date(aVal).getTime(); bVal = new Date(bVal).getTime(); } 
     else if (typeof aVal === 'string') { aVal = aVal.toLowerCase(); bVal = bVal.toLowerCase(); }
     
     if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1; 
@@ -73,7 +72,7 @@ export default function VehiculosPage() {
       Propietario: v.propietario, 
       Modelo: v.modelo, 
       Cubicaje: v.cubicaje, 
-      Disponible: v.disponible ? 'Sí' : 'No', 
+      Estado: v.estado_descripcion || 'Sin Estado', 
       'Fecha de Creación': formatDate(v.fecha_creacion), 
       'Última Modificación': formatDate(v.fecha_modificacion) 
     }));
@@ -83,6 +82,17 @@ export default function VehiculosPage() {
   const confirmDelete = (vehiculo) => {
     setDeleteModal({ show: true, vehiculo });
   };
+  
+  // ... (keep delete logic) ...
+
+  // Helper for badge color
+  const getBadgeColor = (estado) => {
+      const e = estado?.toLowerCase() || '';
+      if(e.includes('disponible') || e.includes('activo')) return { bg: '#e8f5e9', text: '#2e7d32' };
+      if(e.includes('mantenimiento')) return { bg: '#fff3e0', text: '#ef6c00' };
+      if(e.includes('ocupado') || e.includes('ruta')) return { bg: '#e3f2fd', text: '#1565c0' };
+      return { bg: '#ffebee', text: '#c62828' };
+  };
 
   const handleDelete = async () => {
     const placa = deleteModal.vehiculo.placa;
@@ -91,7 +101,6 @@ export default function VehiculosPage() {
     try {
       await axios.delete(`/api/core/vehiculos/${placa}/`, { headers: { Authorization: `Bearer ${token}` } });
       
-      // Use loose equality for role_id to catch string/number differences
       const isRole1 = user?.role_id == 1 || user?.is_superuser;
       if (isRole1) {
           setVehiculos(vehiculos.map(v => v.placa === placa ? { ...v, eliminado: true } : v));
@@ -141,13 +150,15 @@ export default function VehiculosPage() {
               <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('modelo')}>Modelo {sortColumn==='modelo'&&(sortDirection==='asc'?'▲':'▼')}</th>
               <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('tipo_vehiculo_descripcion')}>Tipo {sortColumn==='tipo_vehiculo_descripcion'&&(sortDirection==='asc'?'▲':'▼')}</th>
               <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('cubicaje')}>Cubicaje {sortColumn==='cubicaje'&&(sortDirection==='asc'?'▲':'▼')}</th>
-              <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('disponible')}>Disponible {sortColumn==='disponible'&&(sortDirection==='asc'?'▲':'▼')}</th>
+              <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('estado_descripcion')}>Estado {sortColumn==='estado_descripcion'&&(sortDirection==='asc'?'▲':'▼')}</th>
               <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('fecha_creacion')}>Fecha de Creación {sortColumn==='fecha_creacion'&&(sortDirection==='asc'?'▲':'▼')}</th>
               {(canEdit||canDelete)&&<th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px'}}>Acciones</th>}
             </tr>
           </thead>
           <tbody>
-            {filteredAndSortedVehiculos.map(v=>(
+            {filteredAndSortedVehiculos.map(v=>{
+              const badge = getBadgeColor(v.estado_descripcion);
+              return (
               <tr key={v.placa} style={{borderBottom:'1px solid #f0f0f0'}}>
                 <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.placa}</td>
                 <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.propietario}</td>
@@ -158,7 +169,9 @@ export default function VehiculosPage() {
                   {v.eliminado ? (
                       <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:'#ffcdd2',color:'#b71c1c'}}>Eliminado</span>
                   ) : (
-                      <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:v.disponible?'#e8f5e9':'#ffebee',color:v.disponible?'#2e7d32':'#c62828'}}>{v.disponible?'Disponible':'No Disponible'}</span>
+                      <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:badge.bg,color:badge.text}}>
+                        {v.estado_descripcion || 'Sin Asignar'}
+                      </span>
                   )}
                 </td>
                 <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{formatDate(v.fecha_creacion)}</td>

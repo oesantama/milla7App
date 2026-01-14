@@ -1,0 +1,41 @@
+{
+  "name": "milla7-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "test": "jest --runInBand"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.1.0",
+    "@hookform/resolvers": "^5.2.2",
+    "@tanstack/react-query": "^5.90.12",
+    "@tanstack/react-table": "^8.21.3",
+    "axios": "^1.7.7",
+    "lucide-react": "^0.562.0",
+    "next": "14.2.5",
+    "next-themes": "^0.4.6",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-hook-form": "^7.69.0",
+    "react-hot-toast": "^2.6.0",
+    "recharts": "^3.6.0",
+    "sweetalert2": "^11.26.17",
+    "sweetalert2-react-content": "^5.1.1",
+    "xlsx": "^0.18.5",
+    "zod": "^4.2.1",
+    "zustand": "^5.0.9"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-react": "^7.22.5",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "babel-jest": "^29.7.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}

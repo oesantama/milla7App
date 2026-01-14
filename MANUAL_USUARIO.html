@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario - Milla 7</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1, h2, h3 { color: #0056b3; }
+        h1 { border-bottom: 2px solid #0056b3; padding-bottom: 10px; }
+        code { background-color: #f4f4f4; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
+        .note { background-color: #e7f3fe; border-left: 6px solid #2196F3; padding: 15px; margin-bottom: 15px; }
+        ul { list-style-type: square; }
+        footer { margin-top: 50px; font-size: 0.9em; color: #777; text-align: center; border-top: 1px solid #ddd; padding-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Manual de Usuario - Sistema de Logística Milla 7</h1>
+
+    <h2>Introducción</h2>
+    <p>Bienvenido al <strong>Sistema de Logística Milla 7</strong>. Esta plataforma ha sido diseñada para gestionar y optimizar las operaciones logísticas, permitiendo la administración de datos maestros, la gestión de pedidos, despachos y el seguimiento de planes de entrega.</p>
+
+    <h2>Acceso al Sistema</h2>
+    <p>Para ingresar al sistema, diríjase a la dirección web proporcionada por el administrador.</p>
+    <ol>
+        <li>Ingrese su <strong>Usuario</strong> y <strong>Contraseña</strong> en la pantalla de inicio de sesión.</li>
+        <li>Haga clic en el botón <strong>"Ingresar"</strong>.</li>
+    </ol>
+    <div class="note">
+        <strong>Nota:</strong> Si olvida su contraseña, contacte al administrador del sistema.
+    </div>
+
+    <h2>Interfaz Principal (Dashboard)</h2>
+    <p>Al iniciar sesión, accederá al <strong>Dashboard</strong> o panel principal. Aquí encontrará:</p>
+    <ul>
+        <li>Un resumen visual de las operaciones.</li>
+        <li>Gráficas de rendimiento (ej. Ventas, Estadísticas).</li>
+        <li>Menú de navegación lateral para acceder a los diferentes módulos.</li>
+    </ul>
+
+    <h2>Módulos del Sistema</h2>
+
+    <h3>1. Módulo de Maestras</h3>
+    <p>Este módulo permite la configuración y administración de la información base del sistema. Es fundamental mantener estos datos actualizados para el correcto funcionamiento de las operaciones.</p>
+    <p>Sub-módulos disponibles:</p>
+    <ul>
+        <li><strong>Artículos:</strong> Gestión del catálogo de productos.</li>
+        <li><strong>Categorías:</strong> Clasificación de artículos.</li>
+        <li><strong>Clientes:</strong> Base de datos de clientes y sus sedes.</li>
+        <li><strong>Conductores:</strong> Información de los conductores autorizados.</li>
+        <li><strong>Vehículos:</strong> Flota de vehículos disponibles.</li>
+        <li><strong>Tipos de Vehículos:</strong> Clasificación de la flota.</li>
+        <li><strong>Unidades de Medida:</strong> Definición de unidades (kg, m3, und, etc.).</li>
+        <li><strong>Usuarios, Roles y Permisos:</strong> Administración del acceso al sistema.</li>
+        <li><strong>Correos y Tipos de Notificación:</strong> Configuración de alertas automáticas.</li>
+    </ul>
+
+    <h3>2. Módulo de Operaciones</h3>
+    <p>Este es el núcleo transaccional del sistema. Aquí se gestionan los procesos diarios de logística.</p>
+    <p>Funcionalidades clave:</p>
+    <ul>
+        <li><strong>Carga de Archivos:</strong>
+            <ul>
+                <li><strong>Plan Normal:</strong> Carga masiva de solicitudes de transporte estándar.</li>
+                <li><strong>Plan R:</strong> Carga de solicitudes de reabastecimiento o rutas especiales.</li>
+                <li>El sistema validará el formato de los archivos (Excel/CSV) antes de procesarlos.</li>
+            </ul>
+        </li>
+        <li><strong>Consultas y Reportes:</strong>
+            <ul>
+                <li><strong>Planes de Entrega:</strong> Visualización unificada de los planes cargados.</li>
+                <li><strong>Historial de Cargas:</strong> Registro de todas las importaciones de archivos realizadas.</li>
+                <li><strong>Estadísticas:</strong> Métricas sobre el cumplimiento y volumen de operaciones.</li>
+            </ul>
+        </li>
+        <li><strong>Gestión de Pedidos y Despachos:</strong>
+            <ul>
+                <li>Seguimiento detallado de cada pedido.</li>
+                <li>Asignación de vehículos y conductores a los despachos.</li>
+                <li>Generación de documentos de despacho.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h2>Preguntas Frecuentes</h2>
+
+    <p><strong>¿Qué hago si falla la carga de un archivo?</strong><br>
+    Verifique que el archivo Excel no tenga celdas combinadas, que las fechas tengan el formato correcto y que no falten datos obligatorios. El sistema mostrará un mensaje de error indicando la fila o columna problemática.</p>
+
+    <p><strong>¿Cómo creo un nuevo usuario?</strong><br>
+    Diríjase a <code>Maestras > Usuarios</code>. Haga clic en "Nuevo Usuario", complete los datos requeridos y asigne un Rol (ej. Administrador, Operador).</p>
+
+    <footer>
+        <p><strong>Soporte Técnico:</strong> Para reportar errores o solicitar ayuda adicional, contacte al equipo de TI.</p>
+        <p>&copy; 2026 Milla 7. Todos los derechos reservados.</p>
+    </footer>
+
+</body>
+</html>

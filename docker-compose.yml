@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: milla7_db
+      POSTGRES_USER: milla7_user
+      POSTGRES_PASSWORD: milla7_pass_2025
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U milla7_user -d milla7_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "3036:8000"
+    environment:
+      DB_HOST: db
+      DB_NAME: milla7_db
+      DB_USER: milla7_user
+      DB_PASS: milla7_pass_2025
+      DEBUG: "True"
+      SECRET_KEY: milla7_clave_segura_2025_oscar_admin
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - media_data:/app/media
+    command: python manage.py runserver 0.0.0.0:8000
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - media_data:/app/public/media
+    ports:
+      - "8036:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:
+  media_data:

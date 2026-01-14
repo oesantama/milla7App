@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Técnico - Milla 7</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 1200px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }
+        h1, h2, h3, h4 { color: #b71c1c; }
+        h1 { border-bottom: 3px solid #b71c1c; padding-bottom: 15px; text-align: center; }
+        h2 { border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 40px; }
+        h3 { background-color: #e0e0e0; padding: 10px 15px; border-left: 6px solid #b71c1c; margin-top: 35px; border-radius: 0 4px 4px 0; font-size: 1.4em; }
+        h4 { margin-top: 30px; margin-bottom: 10px; color: #555; font-weight: bold; font-size: 1.1em; border-bottom: 1px dotted #ccc; display: inline-block; padding-bottom: 2px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 25px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden; font-size: 0.9em; }
+        th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #37474f; color: #fff; font-weight: bold; text-transform: uppercase; font-size: 0.85em; border-bottom: 2px solid #263238; }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) { background-color: #fafafa; }
+        tr:hover { background-color: #f0f0f0; }
+        
+        .type-tag { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; font-weight: bold; font-family: Consolas, monospace; }
+        .type-pk { background-color: #ffebee; color: #c62828; }
+        .type-fk { background-color: #fff3e0; color: #ef6c00; border: 1px solid #ffe0b2; }
+        .type-text { background-color: #f3e5f5; color: #7b1fa2; }
+        .type-num { background-color: #e3f2fd; color: #1565c0; }
+        .type-bool { background-color: #e8f5e9; color: #2e7d32; }
+        .type-date { background-color: #e0f7fa; color: #006064; }
+        .type-json { background-color: #eceff1; color: #455a64; }
+
+        footer { margin-top: 60px; font-size: 0.85em; color: #888; text-align: center; border-top: 1px solid #ddd; padding-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Manual Técnico - Sistema de Logística Milla 7</h1>
+
+    <h2>Introducción</h2>
+    <p>Este documento detalla la arquitectura, instalación, mantenimiento y estructura de datos del sistema <strong>Milla 7 App</strong>.</p>
+
+    <h2>Diccionario de Datos Detallado</h2>
+    <p>Documentación completa de todas las tablas, columnas, tipos de datos y relaciones del sistema.</p>
+
+    <!-- MODULE: CORE -->
+    <h3>1. Módulo Core (<code>core</code>)</h3>
+
+    <h4>Tabla: Vehiculo</h4>
+    <table>
+        <thead><tr><th width="15%">Columna</th><th width="20%">Tipo de Dato</th><th width="40%">Relación / Descripción</th><th width="25%">Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>placa</td><td><span class="type-tag type-text">CharField(10)</span></td><td>Matrícula única</td><td><strong>Unique</strong>, No Null</td></tr>
+            <tr><td>propietario</td><td><span class="type-tag type-text">CharField(100)</span></td><td>Nombre del propietario</td><td>No Null</td></tr>
+            <tr><td>cubicaje</td><td><span class="type-tag type-num">DecimalField(6,2)</span></td><td>Capacidad</td><td>Nullable</td></tr>
+            <tr><td>tipo_vehiculo</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>core.TipoVehiculo</code></td><td>Nullable, OnDelete: SET_NULL</td></tr>
+            <tr><td>disponible</td><td><span class="type-tag type-bool">BooleanField</span></td><td>Disponibilidad operativa</td><td>Default: True</td></tr>
+            <tr><td>eliminado</td><td><span class="type-tag type-bool">BooleanField</span></td><td>Borrado lógico</td><td>Default: False</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: Conductor</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>cedula</td><td><span class="type-tag type-text">CharField(15)</span></td><td>Documento Identidad</td><td><strong>Unique</strong>, No Null</td></tr>
+            <tr><td>nombre</td><td><span class="type-tag type-text">CharField(100)</span></td><td>Nombre completo</td><td>No Null</td></tr>
+            <tr><td>celular</td><td><span class="type-tag type-text">CharField(15)</span></td><td>Teléfono contacto</td><td>No Null</td></tr>
+            <tr><td>licencia</td><td><span class="type-tag type-json">JSONField</span></td><td>Categorías de licencia</td><td>Default: list</td></tr>
+            <tr><td>activo</td><td><span class="type-tag type-bool">BooleanField</span></td><td>Estado operativo</td><td>Default: True</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: Cliente</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>nombre</td><td><span class="type-tag type-text">CharField(150)</span></td><td>Razón social</td><td>No Null</td></tr>
+            <tr><td>logo</td><td><span class="type-tag type-text">ImageField</span></td><td>Archivo de imagen</td><td>Nullable</td></tr>
+            <tr><td>estado</td><td><span class="type-tag type-bool">BooleanField</span></td><td>Activo/Inactivo</td><td>Default: True</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: Articulo</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>codigo</td><td><span class="type-tag type-text">CharField(50)</span></td><td>SKU/Referencia</td><td>Nullable</td></tr>
+            <tr><td>descripcion</td><td><span class="type-tag type-text">CharField(100)</span></td><td>Nombre producto</td><td>No Null</td></tr>
+            <tr><td>unidad_medida_general</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>core.UnidadMedida</code></td><td>Nullable</td></tr>
+            <tr><td>categoria</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>core.Categoria</code></td><td>Nullable</td></tr>
+            <tr><td>factor_general</td><td><span class="type-tag type-num">FloatField</span></td><td>Conversión base</td><td>Default: 1.0</td></tr>
+        </tbody>
+    </table>
+
+    <!-- MODULE: MAESTRAS -->
+    <h3>2. Módulo Maestras (<code>maestras</code>)</h3>
+
+    <h4>Tabla: Modulo</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>descripcion_modulo</td><td><span class="type-tag type-text">CharField(100)</span></td><td>Nombre módulo</td><td><strong>Unique</strong>, No Null</td></tr>
+            <tr><td>route</td><td><span class="type-tag type-text">CharField(255)</span></td><td>Ruta base</td><td>Nullable</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: Pagina</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>modulo</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>maestras.Modulo</code></td><td>No Null, Cascade</td></tr>
+            <tr><td>descripcion_pages</td><td><span class="type-tag type-text">CharField(100)</span></td><td>Nombre página</td><td>No Null</td></tr>
+            <tr><td>route</td><td><span class="type-tag type-text">CharField(255)</span></td><td>Ruta URL</td><td>Nullable</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: Tab</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id_tab</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>pagina</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>maestras.Pagina</code></td><td>No Null, Cascade</td></tr>
+            <tr><td>descripcion_tabs</td><td><span class="type-tag type-text">CharField(100)</span></td><td>Nombre Tab</td><td>No Null</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: Rol</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id_rol</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>descripcion_rol</td><td><span class="type-tag type-text">CharField(100)</span></td><td>Nombre Rol</td><td><strong>Unique</strong>, No Null</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: PermisoPorRol</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>rol</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>maestras.Rol</code></td><td>No Null</td></tr>
+            <tr><td>tab</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>maestras.Tab</code></td><td>No Null</td></tr>
+            <tr><td>ver</td><td><span class="type-tag type-bool">BooleanField</span></td><td>Permiso lectura</td><td>Default: False</td></tr>
+            <tr><td>crear</td><td><span class="type-tag type-bool">BooleanField</span></td><td>Permiso escritura</td><td>Default: False</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: MasterEstado</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>descripcion</td><td><span class="type-tag type-text">CharField(50)</span></td><td>Nombre Estado</td><td><strong>Unique</strong>, No Null</td></tr>
+            <tr><td>estado</td><td><span class="type-tag type-bool">BooleanField</span></td><td>Activo/Inactivo</td><td>Default: True</td></tr>
+        </tbody>
+    </table>
+
+    <!-- MODULE: LOGISTICS -->
+    <h3>3. Módulo Logística (<code>logistics</code>)</h3>
+
+    <h4>Tabla: EncSolicitud</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>n_ped</td><td><span class="type-tag type-text">CharField(255)</span></td><td>Nro Pedido</td><td>Nullable</td></tr>
+            <tr><td>f_demanda</td><td><span class="type-tag type-date">DateField</span></td><td>Fecha Demanda</td><td>Nullable</td></tr>
+            <tr><td>plan_type</td><td><span class="type-tag type-text">CharField(20)</span></td><td>PLAN_NORMAL / PLAN_R</td><td>Default: PLAN_NORMAL</td></tr>
+            <tr><td>estado</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>maestras.MasterEstado</code></td><td>Nullable</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: DetalleSolicitud</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>encabezado</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>logistics.EncSolicitud</code></td><td>No Null, Cascade</td></tr>
+            <tr><td>articulo</td><td><span class="type-tag type-text">CharField(255)</span></td><td>Nombre Articulo</td><td>Nullable</td></tr>
+            <tr><td>cant_env</td><td><span class="type-tag type-num">IntegerField</span></td><td>Cantidad</td><td>Nullable</td></tr>
+            <tr><td>volumen</td><td><span class="type-tag type-num">FloatField</span></td><td>Volumen Unit</td><td>Nullable</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: Despacho</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>vehiculo</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>core.Vehiculo</code></td><td>Nullable</td></tr>
+            <tr><td>conductor</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>core.Conductor</code></td><td>Nullable</td></tr>
+            <tr><td>estado</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>maestras.MasterEstado</code></td><td>Nullable</td></tr>
+            <tr><td>capacidad_ocupada</td><td><span class="type-tag type-num">FloatField</span></td><td>% Ocupación</td><td>Default: 0.0</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: CorreosNotificacion</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>correo</td><td><span class="type-tag type-text">EmailField</span></td><td>Email Destino</td><td>No Null</td></tr>
+            <tr><td>tipo_novedad</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>maestras.TipoNotificacion</code></td><td>Nullable</td></tr>
+            <tr><td>estado</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>maestras.MasterEstado</code></td><td>Nullable</td></tr>
+        </tbody>
+    </table>
+
+    <!-- MODULE: OPERATIONS -->
+    <h3>4. Módulo Operaciones (<code>operations</code>)</h3>
+
+    <h4>Tabla: DeliveryPlan</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>plan_type</td><td><span class="type-tag type-text">CharField(20)</span></td><td>Tipo Plan</td><td>No Null</td></tr>
+            <tr><td>file_source</td><td><span class="type-tag type-text">CharField(255)</span></td><td>Archivo Origen</td><td>No Null</td></tr>
+            <tr><td>uploaded_by</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>auth.User</code></td><td>Nullable</td></tr>
+        </tbody>
+    </table>
+
+    <h4>Tabla: FileUploadLog</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>filename</td><td><span class="type-tag type-text">CharField(255)</span></td><td>Nombre Archivo</td><td>No Null</td></tr>
+            <tr><td>status</td><td><span class="type-tag type-text">CharField(20)</span></td><td>Estado (SUCCESS/FAIL)</td><td>Default: SUCCESS</td></tr>
+        </tbody>
+    </table>
+
+    <!-- MODULE: USERS -->
+    <h3>5. Módulo Usuarios (<code>users</code>)</h3>
+
+    <h4>Tabla: UserProfile</h4>
+    <table>
+        <thead><tr><th>Columna</th><th>Tipo de Dato</th><th>Relación / Descripción</th><th>Propiedades</th></tr></thead>
+        <tbody>
+            <tr><td>id</td><td><span class="type-tag type-pk">AutoField</span></td><td>PK</td><td>Autoincremental</td></tr>
+            <tr><td>user</td><td><span class="type-tag type-fk">OneToOneField</span></td><td>-> <code>auth.User</code></td><td>No Null, Cascade</td></tr>
+            <tr><td>role</td><td><span class="type-tag type-fk">ForeignKey</span></td><td>-> <code>maestras.Rol</code></td><td>Nullable</td></tr>
+            <tr><td>clientes</td><td><span class="type-tag type-fk">ManyToManyField</span></td><td>-> <code>core.Cliente</code></td><td>N/A</td></tr>
+        </tbody>
+    </table>
+
+    <footer>
+        <p>&copy; 2026 Milla 7 Dev Team.</p>
+    </footer>
+
+</body>
+</html>

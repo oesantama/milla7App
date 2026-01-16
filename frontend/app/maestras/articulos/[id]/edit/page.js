@@ -7,15 +7,17 @@ import { useRouter, useParams } from 'next/navigation';
 
 export default function EditArticuloPage() {
   const [formData, setFormData] = useState({
+    codigo: '',
     descripcion: '',
     unidad_medida_general: '',
     unidad_medida_especial: '',
     unidad_medida_intermedia: '',
     categoria: '',
-    estado: true,
+    estado: '',
   });
   const [categorias, setCategorias] = useState([]);
   const [unidades, setUnidades] = useState([]);
+  const [estados, setEstados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -33,8 +35,6 @@ export default function EditArticuloPage() {
     formGroup: { marginBottom: '20px' },
     label: { display: 'block', marginBottom: '8px', fontWeight: '600', color: '#444', fontSize: '14px' },
     input: { width: '100%', padding: '12px 16px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', color: '#333', outline: 'none', transition: 'border-color 0.2s', backgroundColor: '#fafafa' },
-    checkboxContainer: { display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' },
-    checkboxLabel: { fontSize: '14px', color: '#333', cursor: 'pointer' },
     submitButton: { width: '100%', padding: '14px', border: 'none', borderRadius: '10px', background: 'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)', color: '#fff', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginTop: '10px', boxShadow: '0 4px 12px rgba(46, 125, 50, 0.2)', transition: 'transform 0.1s' },
     errorAlert: { padding: '15px', borderRadius: '8px', backgroundColor: '#ffebee', color: '#c62828', marginBottom: '20px', display: 'flex', alignItems: 'center', fontSize: '14px' },
     required: { color: '#d32f2f', marginLeft: '3px' },
@@ -46,14 +46,16 @@ export default function EditArticuloPage() {
 
     const fetchData = async () => {
         try {
-            const [artResponse, catResponse, uniResponse] = await Promise.all([
+            const [artResponse, catResponse, uniResponse, estResponse] = await Promise.all([
                 axios.get(`/api/core/articulos/${id}/`, { headers: { Authorization: `Bearer ${token}` } }),
                 axios.get('/api/core/categorias/?estado=true&eliminado=false', { headers: { Authorization: `Bearer ${token}` } }),
-                axios.get('/api/core/unidades-medida/?estado=true&eliminado=false', { headers: { Authorization: `Bearer ${token}` } })
+                axios.get('/api/core/unidades-medida/?estado=true&eliminado=false', { headers: { Authorization: `Bearer ${token}` } }),
+                axios.get('/api/maestras/master-estados/?estado=true', { headers: { Authorization: `Bearer ${token}` } })
             ]);
 
             setCategorias(catResponse.data);
             setUnidades(uniResponse.data);
+            setEstados(estResponse.data);
             setFormData({
                 codigo: artResponse.data.codigo || '',
                 descripcion: artResponse.data.descripcion,
@@ -61,7 +63,7 @@ export default function EditArticuloPage() {
                 unidad_medida_especial: artResponse.data.unidad_medida_especial || '',
                 unidad_medida_intermedia: artResponse.data.unidad_medida_intermedia || '',
                 categoria: artResponse.data.categoria || '',
-                estado: artResponse.data.estado,
+                estado: artResponse.data.estado || '',
             });
         } catch (err) {
             setError('Error al cargar datos');
@@ -83,8 +85,8 @@ export default function EditArticuloPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.descripcion.trim() || !formData.unidad_medida_general) {
-      setError('Descripción y Unidad General son requeridas');
+    if (!formData.descripcion.trim() || !formData.unidad_medida_general || !formData.estado) {
+      setError('Descripción, Unidad General y Estado son requeridos');
       return;
     }
 
@@ -92,7 +94,6 @@ export default function EditArticuloPage() {
     setError(null);
 
     try {
-      // Clean empty strings for optional fields to send null
       const dataToSend = {
           ...formData,
           unidad_medida_especial: formData.unidad_medida_especial || null,
@@ -237,19 +238,21 @@ export default function EditArticuloPage() {
           </div>
 
           <div style={styles.formGroup}>
-            <div style={styles.checkboxContainer}>
-              <input
-                type="checkbox"
-                name="estado"
-                id="estado"
-                checked={formData.estado}
-                onChange={handleChange}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              <label htmlFor="estado" style={styles.checkboxLabel}>
-                Activo
-              </label>
-            </div>
+            <label style={styles.label}>
+              Estado <span style={styles.required}>*</span>
+            </label>
+            <select
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              style={styles.input}
+              required
+            >
+                <option value="">Seleccione un estado...</option>
+                {estados.map(e => (
+                    <option key={e.id} value={e.id}>{e.descripcion}</option>
+                ))}
+            </select>
           </div>
 
           <button type="submit" disabled={saving} style={{...styles.submitButton, opacity: saving ? 0.7 : 1}}>

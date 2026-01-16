@@ -29,12 +29,21 @@ export default function CreateConductorPage() {
     nombre: '', 
     celular: '', 
     licencia: [], 
-    activo: true 
+    estado: '' 
   });
+  const [estados, setEstados] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { token, isAuthenticated } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+      if (token) {
+          axios.get('/api/maestras/master-estados/?estado=true', { headers: { Authorization: `Bearer ${token}` } })
+              .then(res => setEstados(res.data))
+              .catch(err => console.error("Error cargando estados", err));
+      }
+  }, [token]);
 
   const handleChange = (e) => { 
     const { name, value, type, checked } = e.target; 
@@ -52,8 +61,8 @@ export default function CreateConductorPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.cedula.trim() || !formData.nombre.trim() || !formData.celular.trim()) { 
-      setError('Cédula, nombre y celular son requeridos'); 
+    if (!formData.cedula.trim() || !formData.nombre.trim() || !formData.celular.trim() || !formData.estado) { 
+      setError('Cédula, nombre, celular y estado son requeridos'); 
       return; 
     }
     if (formData.licencia.length === 0) {
@@ -134,10 +143,21 @@ export default function CreateConductorPage() {
           </div>
           
           <div style={{marginBottom:'25px'}}>
-            <label style={{display:'flex',alignItems:'center',fontSize:'15px',color:'#333',cursor:'pointer'}}>
-              <input type="checkbox" name="activo" checked={formData.activo} onChange={handleChange} style={{width:'20px',height:'20px',cursor:'pointer'}} />
-              <span style={{marginLeft:'8px'}}>Activo</span>
+            <label style={{display:'block',marginBottom:'8px',fontSize:'14px',fontWeight:'600',color:'#333'}}>
+              Estado <span style={{color:'#d32f2f'}}>*</span>
             </label>
+            <select
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              style={{width:'100%',padding:'12px 16px',border:'2px solid #e0e0e0',borderRadius:'8px',fontSize:'15px',outline:'none',boxSizing:'border-box'}}
+              required
+            >
+                <option value="">Seleccione un estado...</option>
+                {estados.map(e => (
+                    <option key={e.id} value={e.id}>{e.descripcion}</option>
+                ))}
+            </select>
           </div>
           
           <div style={{display:'flex',gap:'12px',marginTop:'30px'}}>

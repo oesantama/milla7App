@@ -8,12 +8,21 @@ import { useRouter } from 'next/navigation';
 export default function CreateRolePage() {
   const [formData, setFormData] = useState({
     descripcion_rol: '',
-    estado: true,
+    estado: '',
   });
+  const [estados, setEstados] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { token, isAuthenticated } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+      if (token) {
+          axios.get('/api/maestras/master-estados/?estado=true', { headers: { Authorization: `Bearer ${token}` } })
+              .then(res => setEstados(res.data))
+              .catch(err => console.error("Error cargando estados", err));
+      }
+  }, [token]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -26,8 +35,8 @@ export default function CreateRolePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.descripcion_rol.trim()) {
-      setError('La descripción es requerida');
+    if (!formData.descripcion_rol.trim() || !formData.estado) {
+      setError('La descripción y el estado son requeridos');
       return;
     }
 
@@ -93,16 +102,21 @@ export default function CreateRolePage() {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                name="estado"
-                checked={formData.estado}
-                onChange={handleChange}
-                style={styles.checkbox}
-              />
-              <span style={{ marginLeft: '8px' }}>Activo</span>
+            <label style={styles.label}>
+              Estado <span style={styles.required}>*</span>
             </label>
+            <select
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              style={styles.input}
+              required
+            >
+                <option value="">Seleccione un estado...</option>
+                {estados.map(e => (
+                    <option key={e.id} value={e.id}>{e.descripcion}</option>
+                ))}
+            </select>
           </div>
 
           <div style={styles.buttonGroup}>

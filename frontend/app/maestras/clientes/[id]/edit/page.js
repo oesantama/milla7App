@@ -5,8 +5,9 @@ import { useAuth } from '../../../../context/AuthContext';
 import { useRouter, useParams } from 'next/navigation';
 
 export default function EditClientePage() {
-  const [formData, setFormData] = useState({ nombre: '', logo: null, estado: true });
+  const [formData, setFormData] = useState({ nombre: '', logo: null, estado: '' });
   const [currentLogo, setCurrentLogo] = useState(null);
+  const [estados, setEstados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -17,10 +18,16 @@ export default function EditClientePage() {
 
   useEffect(() => {
     if (!isAuthenticated || !token) { router.push('/'); return; }
+    
+    // Fetch states
+    axios.get('/api/maestras/master-estados/?estado=true', { headers: { Authorization: `Bearer ${token}` } })
+         .then(res => setEstados(res.data))
+         .catch(err => console.error("Error cargando estados", err));
+
     const fetchCliente = async () => {
       try {
         const response = await axios.get(`/api/core/clientes/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
-        setFormData({ nombre: response.data.nombre, logo: null, estado: response.data.estado });
+        setFormData({ nombre: response.data.nombre, logo: null, estado: response.data.estado || '' });
         setCurrentLogo(response.data.logo);
       } catch (err) {
         setError('Error al cargar el cliente');
@@ -42,7 +49,7 @@ export default function EditClientePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.nombre.trim()) { setError('El nombre es requerido'); return; }
+    if (!formData.nombre.trim() || !formData.estado) { setError('El nombre y el estado son requeridos'); return; }
     setSaving(true); setError(null);
     try {
       const data = new FormData();
@@ -83,7 +90,25 @@ export default function EditClientePage() {
             <input type="file" name="logo" onChange={handleChange} accept="image/*" style={{width:'100%',padding:'12px 16px',border:'2px solid #e0e0e0',borderRadius:'8px',fontSize:'15px',outline:'none',boxSizing:'border-box'}} />
             <p style={{fontSize:'12px',color:'#666',marginTop:'5px'}}>Deja vacío para mantener el logo actual</p>
           </div>
-          <div style={{marginBottom:'25px'}}><label style={{display:'flex',alignItems:'center',fontSize:'15px',color:'#333',cursor:'pointer'}}><input type="checkbox" name="estado" checked={formData.estado} onChange={handleChange} style={{width:'20px',height:'20px',cursor:'pointer'}} /><span style={{marginLeft:'8px'}}>Activo</span></label></div>
+          
+          <div style={{marginBottom:'25px'}}>
+            <label style={{display:'block',marginBottom:'8px',fontSize:'14px',fontWeight:'600',color:'#333'}}>
+              Estado <span style={{color:'#d32f2f'}}>*</span>
+            </label>
+            <select
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              style={{width:'100%',padding:'12px 16px',border:'2px solid #e0e0e0',borderRadius:'8px',fontSize:'15px',outline:'none',boxSizing:'border-box'}}
+              required
+            >
+                <option value="">Seleccione un estado...</option>
+                {estados.map(e => (
+                    <option key={e.id} value={e.id}>{e.descripcion}</option>
+                ))}
+            </select>
+          </div>
+
           <div style={{display:'flex',gap:'12px',marginTop:'30px'}}>
             <button type="submit" disabled={saving} style={{padding:'12px 24px',border:'none',borderRadius:'8px',fontSize:'15px',fontWeight:'600',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)',color:'#fff',flex:1,opacity:saving?0.6:1}}>{saving?<><i className="fa fa-spinner fa-spin" style={{marginRight:'8px'}}></i>Guardando...</>:<><i className="fa fa-save" style={{marginRight:'8px'}}></i>Guardar Cambios</>}</button>
             <button type="button" onClick={()=>router.push('/maestras/clientes')} style={{padding:'12px 24px',border:'none',borderRadius:'8px',fontSize:'15px',fontWeight:'600',cursor:'pointer',display:'flex',alignItems:'center',background:'#ef5350',color:'#fff'}} disabled={saving}><i className="fa fa-times" style={{marginRight:'8px'}}></i>Cancelar</button>

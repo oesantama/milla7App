@@ -49,7 +49,13 @@ class Conductor(models.Model):
     nombre = models.CharField(max_length=100)
     celular = models.CharField(max_length=15)
     licencia = models.JSONField(default=list, verbose_name="Categorías de Licencia")
-    activo = models.BooleanField(default=True)
+    estado = models.ForeignKey(
+        'maestras.MasterEstado',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Estado"
+    )
     eliminado = models.BooleanField(default=False, verbose_name="Eliminado")
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
     fecha_modificacion = models.DateTimeField(auto_now=True, verbose_name="Fecha de modificación")
@@ -76,7 +82,13 @@ class Conductor(models.Model):
 class Cliente(models.Model):
     nombre = models.CharField(max_length=150, verbose_name="Nombre del Cliente")
     logo = models.ImageField(upload_to='clientes/logos/', blank=True, null=True, verbose_name="Logo")
-    estado = models.BooleanField(default=True, verbose_name="Estado")
+    estado = models.ForeignKey(
+        'maestras.MasterEstado',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Estado"
+    )
     eliminado = models.BooleanField(default=False, verbose_name="Eliminado")
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
     fecha_modificacion = models.DateTimeField(auto_now=True, verbose_name="Fecha de modificación")
@@ -216,7 +228,13 @@ class Articulo(models.Model):
         blank=True,
         verbose_name="Categoría"
     )
-    estado = models.BooleanField(default=True)
+    estado = models.ForeignKey(
+        'maestras.MasterEstado',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Estado"
+    )
     eliminado = models.BooleanField(default=False, verbose_name="Eliminado")
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
     fecha_modificacion = models.DateTimeField(auto_now=True, verbose_name="Fecha de modificación")

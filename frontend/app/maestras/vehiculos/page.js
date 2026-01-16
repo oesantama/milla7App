@@ -18,7 +18,6 @@ export default function VehiculosPage() {
   const router = useRouter();
 
   // Permissions logic
-  // Permissions logic
   const pagePermissions = permissions.find(p => {
     const name = p.nombre.toLowerCase();
     return name.includes('vehiculo') || name.includes('vehículo');
@@ -82,10 +81,7 @@ export default function VehiculosPage() {
   const confirmDelete = (vehiculo) => {
     setDeleteModal({ show: true, vehiculo });
   };
-  
-  // ... (keep delete logic) ...
 
-  // Helper for badge color
   const getBadgeColor = (estado) => {
       const e = estado?.toLowerCase() || '';
       if(e.includes('disponible') || e.includes('activo')) return { bg: '#e8f5e9', text: '#2e7d32' };
@@ -156,37 +152,38 @@ export default function VehiculosPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredAndSortedVehiculos.map(v=>{
+            {filteredAndSortedVehiculos.map((v) => {
               const badge = getBadgeColor(v.estado_descripcion);
               return (
-              <tr key={v.placa} style={{borderBottom:'1px solid #f0f0f0'}}>
-                <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.placa}</td>
-                <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.propietario}</td>
-                <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.modelo}</td>
-                <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.tipo_vehiculo_descripcion || '-'}</td>
-                <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.cubicaje}</td>
-                <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>
-                  {v.eliminado ? (
-                      <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:'#ffcdd2',color:'#b71c1c'}}>Eliminado</span>
-                  ) : (
-                      <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:badge.bg,color:badge.text}}>
-                        {v.estado_descripcion || 'Sin Asignar'}
-                      </span>
-                  )}
-                </td>
-                <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{formatDate(v.fecha_creacion)}</td>
-                {(canEdit||canDelete)&&(
+                <tr key={v.placa} style={{borderBottom:'1px solid #f0f0f0'}}>
+                  <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.placa}</td>
+                  <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.propietario}</td>
+                  <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.modelo}</td>
+                  <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.tipo_vehiculo_descripcion || '-'}</td>
+                  <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{v.cubicaje}</td>
                   <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>
-                    {!v.eliminado && (
-                        <div style={{display:'flex',gap:'8px'}}>
-                        {canEdit&&<button onClick={()=>router.push(`/maestras/vehiculos/${v.placa}/edit`)} style={{padding:'8px 12px',border:'none',borderRadius:'8px',cursor:'pointer',fontSize:'14px',color:'#fff',background:'#FFA726'}} title="Editar vehículo"><i className="fa fa-pencil-alt"></i></button>}
-                        {canDelete&&<button onClick={()=>confirmDelete(v)} style={{padding:'8px 12px',border:'none',borderRadius:'8px',cursor:'pointer',fontSize:'14px',color:'#fff',background:'#EF5350'}} title="Eliminar vehículo"><i className="fa fa-trash-alt"></i></button>}
-                        </div>
+                    {v.eliminado ? (
+                        <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:'#ffcdd2',color:'#b71c1c'}}>Eliminado</span>
+                    ) : (
+                        <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:badge.bg,color:badge.text}}>
+                          {v.estado_descripcion || 'Sin Asignar'}
+                        </span>
                     )}
                   </td>
-                )}
-              </tr>
-            ))}
+                  <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{formatDate(v.fecha_creacion)}</td>
+                  {(canEdit||canDelete)&&(
+                    <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>
+                      {!v.eliminado && (
+                          <div style={{display:'flex',gap:'8px'}}>
+                          {canEdit&&<button onClick={()=>router.push(`/maestras/vehiculos/${v.placa}/edit`)} style={{padding:'8px 12px',border:'none',borderRadius:'8px',cursor:'pointer',fontSize:'14px',color:'#fff',background:'#FFA726'}} title="Editar vehículo"><i className="fa fa-pencil-alt"></i></button>}
+                          {canDelete&&<button onClick={()=>confirmDelete(v)} style={{padding:'8px 12px',border:'none',borderRadius:'8px',cursor:'pointer',fontSize:'14px',color:'#fff',background:'#EF5350'}} title="Eliminar vehículo"><i className="fa fa-trash-alt"></i></button>}
+                          </div>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

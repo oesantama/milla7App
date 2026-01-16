@@ -51,13 +51,23 @@ export default function ClientesPage() {
 
   const filteredAndSortedClientes = clientes.filter(c => c.nombre?.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
     let aVal = a[sortColumn]; let bVal = b[sortColumn];
-    if (sortColumn === 'estado') { aVal = aVal ? 1 : 0; bVal = bVal ? 1 : 0; } else if (sortColumn === 'fecha_creacion' || sortColumn === 'fecha_modificacion') { aVal = new Date(aVal).getTime(); bVal = new Date(bVal).getTime(); } else if (typeof aVal === 'string') { aVal = aVal.toLowerCase(); bVal = bVal.toLowerCase(); }
+    if (sortColumn === 'estado_descripcion') { 
+        aVal = a.estado_descripcion?.toLowerCase() || ''; 
+        bVal = b.estado_descripcion?.toLowerCase() || ''; 
+    } else if (sortColumn === 'fecha_creacion' || sortColumn === 'fecha_modificacion') { aVal = new Date(aVal).getTime(); bVal = new Date(bVal).getTime(); } else if (typeof aVal === 'string') { aVal = aVal.toLowerCase(); bVal = bVal.toLowerCase(); }
     if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1; if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1; return 0;
   });
 
   const handleExport = () => {
-    const dataToExport = filteredAndSortedClientes.map(c => ({ ID: c.id, Nombre: c.nombre, Logo: c.logo || '-', Estado: c.estado ? 'Activo' : 'Inactivo', 'Fecha de Creación': formatDate(c.fecha_creacion), 'Última Modificación': formatDate(c.fecha_modificacion) }));
+    const dataToExport = filteredAndSortedClientes.map(c => ({ ID: c.id, Nombre: c.nombre, Logo: c.logo || '-', Estado: c.estado_descripcion || 'Sin Asignar', 'Fecha de Creación': formatDate(c.fecha_creacion), 'Última Modificación': formatDate(c.fecha_modificacion) }));
     exportToExcel(dataToExport, 'clientes_milla7');
+  };
+
+  const getBadgeColor = (estado) => {
+      const e = estado?.toLowerCase() || '';
+      if(e.includes('disponible') || e.includes('activo')) return { bg: '#e8f5e9', text: '#2e7d32' };
+      if(e.includes('mantenimiento') || e.includes('licencia') || e.includes('inactivo')) return { bg: '#fff3e0', text: '#ef6c00' };
+      return { bg: '#ffebee', text: '#c62828' };
   };
 
   const confirmDelete = (cliente) => {
@@ -117,14 +127,16 @@ export default function ClientesPage() {
               <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('id')}>ID {sortColumn==='id'&&(sortDirection==='asc'?'▲':'▼')}</th>
               <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('nombre')}>Nombre {sortColumn==='nombre'&&(sortDirection==='asc'?'▲':'▼')}</th>
               <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',whiteSpace:'nowrap'}}>Logo</th>
-              <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('estado')}>Estado {sortColumn==='estado'&&(sortDirection==='asc'?'▲':'▼')}</th>
+              <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('estado_descripcion')}>Estado {sortColumn==='estado_descripcion'&&(sortDirection==='asc'?'▲':'▼')}</th>
               <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('fecha_creacion')}>Fecha de Creación {sortColumn==='fecha_creacion'&&(sortDirection==='asc'?'▲':'▼')}</th>
               <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('fecha_modificacion')}>Última Modificación {sortColumn==='fecha_modificacion'&&(sortDirection==='asc'?'▲':'▼')}</th>
               {(canEdit||canDelete)&&<th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px'}}>Acciones</th>}
             </tr>
           </thead>
           <tbody>
-            {filteredAndSortedClientes.map(c=>(
+            {filteredAndSortedClientes.map(c=>{
+              const badge = getBadgeColor(c.estado_descripcion);
+              return (
               <tr key={c.id} style={{borderBottom:'1px solid #f0f0f0'}}>
                 <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{c.id}</td>
                 <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{c.nombre}</td>
@@ -139,7 +151,9 @@ export default function ClientesPage() {
                   {c.eliminado ? (
                     <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:'#ffcdd2',color:'#b71c1c'}}>Eliminado</span>
                   ) : (
-                    <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:c.estado?'#e8f5e9':'#ffebee',color:c.estado?'#2e7d32':'#c62828'}}>{c.estado?'Activo':'Inactivo'}</span>
+                    <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:badge.bg,color:badge.text}}>
+                        {c.estado_descripcion || 'Sin Asignar'}
+                    </span>
                   )}
                 </td>
                 <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{formatDate(c.fecha_creacion)}</td>
@@ -155,7 +169,7 @@ export default function ClientesPage() {
                   </td>
                 )}
               </tr>
-            ))}
+            )})}
           </tbody>
         </table>
       </div>

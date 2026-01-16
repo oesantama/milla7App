@@ -70,6 +70,13 @@ class Tab(TimeStampedModel):
 class Rol(TimeStampedModel):
     id_rol = models.AutoField(primary_key=True)
     descripcion_rol = models.CharField(max_length=100, unique=True, verbose_name="Descripción")
+    estado = models.ForeignKey(
+        'MasterEstado',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Estado"
+    )
 
     class Meta:
         ordering = ['descripcion_rol']
@@ -123,7 +130,7 @@ class PermisoPorUsuario(TimeStampedModel):
 
     def __str__(self):
         if self.cliente:
-            return f"Usuario: {self.usuario.username} | Tab: {self.tab.descripcion_tabs} | Cliente: {self.cliente.name}"
+            return f"Usuario: {self.usuario.username} | Tab: {self.tab.descripcion_tabs} | Cliente: {self.cliente.nombre}"
         return f"Usuario: {self.usuario.username} | Tab: {self.tab.descripcion_tabs}"
 
 class MasterEstado(TimeStampedModel):

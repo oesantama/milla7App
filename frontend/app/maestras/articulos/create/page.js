@@ -12,10 +12,11 @@ export default function CreateArticuloPage() {
     unidad_medida_especial: '',
     unidad_medida_intermedia: '',
     categoria: '',
-    estado: true,
+    estado: '',
   });
   const [categorias, setCategorias] = useState([]);
   const [unidades, setUnidades] = useState([]);
+  const [estados, setEstados] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const { token, isAuthenticated } = useAuth();
@@ -41,10 +42,12 @@ export default function CreateArticuloPage() {
     if (token) {
         Promise.all([
             axios.get('/api/core/categorias/?estado=true&eliminado=false', { headers: { Authorization: `Bearer ${token}` } }),
-            axios.get('/api/core/unidades-medida/?estado=true&eliminado=false', { headers: { Authorization: `Bearer ${token}` } })
-        ]).then(([catRes, uniRes]) => {
+            axios.get('/api/core/unidades-medida/?estado=true&eliminado=false', { headers: { Authorization: `Bearer ${token}` } }),
+            axios.get('/api/maestras/master-estados/?estado=true', { headers: { Authorization: `Bearer ${token}` } })
+        ]).then(([catRes, uniRes, estRes]) => {
             setCategorias(catRes.data);
             setUnidades(uniRes.data);
+            setEstados(estRes.data);
         }).catch(err => console.error("Error loading data", err));
     }
   }, [token]);
@@ -59,8 +62,8 @@ export default function CreateArticuloPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.descripcion.trim() || !formData.unidad_medida_general) {
-      setError('Descripción y Unidad General son requeridas');
+    if (!formData.descripcion.trim() || !formData.unidad_medida_general || !formData.estado) {
+      setError('Descripción, Unidad General y Estado son requeridos');
       return;
     }
 
@@ -204,19 +207,21 @@ export default function CreateArticuloPage() {
           </div>
 
           <div style={styles.formGroup}>
-            <div style={styles.checkboxContainer}>
-              <input
-                type="checkbox"
-                name="estado"
-                id="estado"
-                checked={formData.estado}
-                onChange={handleChange}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              <label htmlFor="estado" style={styles.checkboxLabel}>
-                Activo
-              </label>
-            </div>
+            <label style={styles.label}>
+              Estado <span style={styles.required}>*</span>
+            </label>
+            <select
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              style={styles.input}
+              required
+            >
+                <option value="">Seleccione un estado...</option>
+                {estados.map(e => (
+                    <option key={e.id} value={e.id}>{e.descripcion}</option>
+                ))}
+            </select>
           </div>
 
           <button type="submit" disabled={saving} style={{...styles.submitButton, opacity: saving ? 0.7 : 1}}>

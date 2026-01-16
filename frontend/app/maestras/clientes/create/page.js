@@ -5,11 +5,20 @@ import { useAuth } from '../../../context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function CreateClientePage() {
-  const [formData, setFormData] = useState({ nombre: '', logo: null, estado: true });
+  const [formData, setFormData] = useState({ nombre: '', logo: null, estado: '' });
+  const [estados, setEstados] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { token, isAuthenticated } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+      if (token) {
+          axios.get('/api/maestras/master-estados/?estado=true', { headers: { Authorization: `Bearer ${token}` } })
+              .then(res => setEstados(res.data))
+              .catch(err => console.error("Error cargando estados", err));
+      }
+  }, [token]);
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -22,7 +31,7 @@ export default function CreateClientePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.nombre.trim()) { setError('El nombre es requerido'); return; }
+    if (!formData.nombre.trim() || !formData.estado) { setError('El nombre y el estado son requeridos'); return; }
     setLoading(true); setError(null);
     try {
       const data = new FormData();
@@ -57,7 +66,25 @@ export default function CreateClientePage() {
           {error&&<div style={{background:'#ffebee',color:'#c62828',padding:'12px 16px',borderRadius:'8px',marginBottom:'20px',display:'flex',alignItems:'center'}}><i className="fa fa-exclamation-circle" style={{marginRight:'8px'}}></i>{error}</div>}
           <div style={{marginBottom:'25px'}}><label style={{display:'block',marginBottom:'8px',fontSize:'14px',fontWeight:'600',color:'#333'}}>Nombre <span style={{color:'#d32f2f'}}>*</span></label><input type="text" name="nombre" value={formData.nombre} onChange={handleChange} placeholder="Nombre del cliente" style={{width:'100%',padding:'12px 16px',border:'2px solid #e0e0e0',borderRadius:'8px',fontSize:'15px',outline:'none',boxSizing:'border-box'}} required /></div>
           <div style={{marginBottom:'25px'}}><label style={{display:'block',marginBottom:'8px',fontSize:'14px',fontWeight:'600',color:'#333'}}>Logo (Imagen)</label><input type="file" name="logo" onChange={handleChange} accept="image/*" style={{width:'100%',padding:'12px 16px',border:'2px solid #e0e0e0',borderRadius:'8px',fontSize:'15px',outline:'none',boxSizing:'border-box'}} /></div>
-          <div style={{marginBottom:'25px'}}><label style={{display:'flex',alignItems:'center',fontSize:'15px',color:'#333',cursor:'pointer'}}><input type="checkbox" name="estado" checked={formData.estado} onChange={handleChange} style={{width:'20px',height:'20px',cursor:'pointer'}} /><span style={{marginLeft:'8px'}}>Activo</span></label></div>
+          
+          <div style={{marginBottom:'25px'}}>
+            <label style={{display:'block',marginBottom:'8px',fontSize:'14px',fontWeight:'600',color:'#333'}}>
+              Estado <span style={{color:'#d32f2f'}}>*</span>
+            </label>
+            <select
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              style={{width:'100%',padding:'12px 16px',border:'2px solid #e0e0e0',borderRadius:'8px',fontSize:'15px',outline:'none',boxSizing:'border-box'}}
+              required
+            >
+                <option value="">Seleccione un estado...</option>
+                {estados.map(e => (
+                    <option key={e.id} value={e.id}>{e.descripcion}</option>
+                ))}
+            </select>
+          </div>
+
           <div style={{display:'flex',gap:'12px',marginTop:'30px'}}>
             <button type="submit" disabled={loading} style={{padding:'12px 24px',border:'none',borderRadius:'8px',fontSize:'15px',fontWeight:'600',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)',color:'#fff',flex:1,opacity:loading?0.6:1}}>{loading?<><i className="fa fa-spinner fa-spin" style={{marginRight:'8px'}}></i>Guardando...</>:<><i className="fa fa-save" style={{marginRight:'8px'}}></i>Guardar Cliente</>}</button>
             <button type="button" onClick={()=>router.push('/maestras/clientes')} style={{padding:'12px 24px',border:'none',borderRadius:'8px',fontSize:'15px',fontWeight:'600',cursor:'pointer',display:'flex',alignItems:'center',background:'#ef5350',color:'#fff'}} disabled={loading}><i className="fa fa-times" style={{marginRight:'8px'}}></i>Cancelar</button>

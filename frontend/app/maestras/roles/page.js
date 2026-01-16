@@ -73,6 +73,13 @@ export default function RolesPage() {
     }
   };
 
+  const getBadgeColor = (estado) => {
+      const e = estado?.toLowerCase() || '';
+      if(e.includes('disponible') || e.includes('activo')) return { bg: '#e8f5e9', text: '#2e7d32' };
+      if(e.includes('mantenimiento') || e.includes('licencia') || e.includes('inactivo')) return { bg: '#fff3e0', text: '#ef6c00' };
+      return { bg: '#ffebee', text: '#c62828' };
+  };
+
   // Filter and sort roles
   const filteredAndSortedRoles = roles
     .filter(role =>
@@ -83,9 +90,9 @@ export default function RolesPage() {
       let bVal = b[sortColumn];
 
       // Handle different data types
-      if (sortColumn === 'estado') {
-        aVal = aVal ? 1 : 0;
-        bVal = bVal ? 1 : 0;
+      if (sortColumn === 'estado_descripcion') {
+        aVal = a.estado_descripcion?.toLowerCase() || '';
+        bVal = b.estado_descripcion?.toLowerCase() || '';
       } else if (sortColumn === 'fecha_creacion') {
         aVal = new Date(aVal).getTime();
         bVal = new Date(bVal).getTime();
@@ -103,7 +110,7 @@ export default function RolesPage() {
     const dataToExport = filteredAndSortedRoles.map(role => ({
       ID: role.id_rol,
       Descripción: role.descripcion_rol,
-      Estado: role.estado ? 'Activo' : 'Inactivo',
+      Estado: role.estado_descripcion || 'Sin Asignar',
       'Fecha de Creación': formatDate(role.fecha_creacion),
       'Última Modificación': formatDate(role.fecha_modificacion),
     }));
@@ -172,8 +179,8 @@ export default function RolesPage() {
               <th style={styles.th} onClick={() => handleSort('descripcion_rol')}>
                 Descripción {sortColumn === 'descripcion_rol' && (sortDirection === 'asc' ? '▲' : '▼')}
               </th>
-              <th style={styles.th} onClick={() => handleSort('estado')}>
-                Estado {sortColumn === 'estado' && (sortDirection === 'asc' ? '▲' : '▼')}
+              <th style={styles.th} onClick={() => handleSort('estado_descripcion')}>
+                Estado {sortColumn === 'estado_descripcion' && (sortDirection === 'asc' ? '▲' : '▼')}
               </th>
               <th style={styles.th} onClick={() => handleSort('fecha_creacion')}>
                 Fecha de Creación {sortColumn === 'fecha_creacion' && (sortDirection === 'asc' ? '▲' : '▼')}
@@ -185,46 +192,50 @@ export default function RolesPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredAndSortedRoles.map(role => (
-              <tr key={role.id_rol} style={styles.tr}>
-                <td style={styles.td}>{role.id_rol}</td>
-                <td style={styles.td}>{role.descripcion_rol}</td>
-                <td style={styles.td}>
-                  <span style={{
-                    ...styles.badge,
-                    ...(role.estado ? styles.badgeActive : styles.badgeInactive)
-                  }}>
-                    {role.estado ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td>
-                <td style={styles.td}>{formatDate(role.fecha_creacion)}</td>
-                <td style={styles.td}>{formatDate(role.fecha_modificacion)}</td>
-                {(canEdit || canDelete) && (
+            {filteredAndSortedRoles.map((role) => {
+              const badge = getBadgeColor(role.estado_descripcion);
+              return (
+                <tr key={role.id_rol} style={styles.tr}>
+                  <td style={styles.td}>{role.id_rol}</td>
+                  <td style={styles.td}>{role.descripcion_rol}</td>
                   <td style={styles.td}>
-                    <div style={styles.actionButtons}>
-                      {canEdit && (
-                        <button
-                          onClick={() => router.push(`/maestras/roles/${role.id_rol}/edit`)}
-                          style={{ ...styles.actionButton, ...styles.editButton }}
-                          title="Editar rol"
-                        >
-                          <i className="fa fa-pencil-alt"></i>
-                        </button>
-                      )}
-                      {canDelete && (
-                        <button
-                          onClick={() => handleDelete(role.id_rol)}
-                          style={{ ...styles.actionButton, ...styles.deleteButton }}
-                          title="Eliminar rol"
-                        >
-                          <i className="fa fa-trash-alt"></i>
-                        </button>
-                      )}
-                    </div>
+                    <span style={{
+                      ...styles.badge,
+                      background: badge.bg,
+                      color: badge.text
+                    }}>
+                      {role.estado_descripcion || 'Sin Asignar'}
+                    </span>
                   </td>
-                )}
-              </tr>
-            ))}
+                  <td style={styles.td}>{formatDate(role.fecha_creacion)}</td>
+                  <td style={styles.td}>{formatDate(role.fecha_modificacion)}</td>
+                  {(canEdit || canDelete) && (
+                    <td style={styles.td}>
+                      <div style={styles.actionButtons}>
+                        {canEdit && (
+                          <button
+                            onClick={() => router.push(`/maestras/roles/${role.id_rol}/edit`)}
+                            style={{ ...styles.actionButton, ...styles.editButton }}
+                            title="Editar rol"
+                          >
+                            <i className="fa fa-pencil-alt"></i>
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            onClick={() => handleDelete(role.id_rol)}
+                            style={{ ...styles.actionButton, ...styles.deleteButton }}
+                            title="Eliminar rol"
+                          >
+                            <i className="fa fa-trash-alt"></i>
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -334,14 +345,6 @@ const styles = {
     fontSize: '13px',
     fontWeight: '600',
     display: 'inline-block',
-  },
-  badgeActive: {
-    background: '#e8f5e9',
-    color: '#2e7d32',
-  },
-  badgeInactive: {
-    background: '#ffebee',
-    color: '#c62828',
   },
   actionButtons: {
     display: 'flex',

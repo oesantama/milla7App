@@ -17,14 +17,18 @@ class VehiculoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ConductorSerializer(serializers.ModelSerializer):
+    estado_descripcion = serializers.ReadOnlyField(source='estado.descripcion')
+
     class Meta:
         model = Conductor
         fields = '__all__'
 
 class ClienteSerializer(serializers.ModelSerializer):
+    estado_descripcion = serializers.ReadOnlyField(source='estado.descripcion')
+
     class Meta:
         model = Cliente
-        fields = ['id', 'nombre', 'logo', 'estado', 'fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion']
+        fields = ['id', 'nombre', 'logo', 'estado', 'estado_descripcion', 'fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion']
         read_only_fields = ['fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion']
     
     def to_representation(self, instance):
@@ -67,6 +71,7 @@ class ArticuloSerializer(serializers.ModelSerializer):
     unidad_medida_intermedia_descripcion = serializers.ReadOnlyField(source='unidad_medida_intermedia.descripcion')
     usuario_creacion_nombre = serializers.ReadOnlyField(source='usuario_creacion.username')
     usuario_modificacion_nombre = serializers.ReadOnlyField(source='usuario_modificacion.username')
+    estado_descripcion = serializers.ReadOnlyField(source='estado.descripcion')
 
     class Meta:
         model = Articulo

@@ -68,7 +68,7 @@ export default function ArticulosPage() {
       'Descripción': a.descripcion,
       'U.M. General': a.unidad_medida_general_descripcion,
       'Categoría': a.categoria_descripcion || '-',
-      'Estado': a.estado ? 'Activo' : 'Inactivo',
+      'Estado': a.estado_descripcion || 'Sin Asignar',
       'Fecha Creación': formatDate(a.fecha_creacion),
       'Usuario Creación': a.usuario_creacion_nombre || '-',
       'Fecha Modificación': formatDate(a.fecha_modificacion),
@@ -79,6 +79,13 @@ export default function ArticulosPage() {
 
   const confirmDelete = (articulo) => {
     setDeleteModal({ show: true, articulo });
+  };
+
+  const getBadgeColor = (estado) => {
+      const e = estado?.toLowerCase() || '';
+      if(e.includes('disponible') || e.includes('activo')) return { bg: '#e8f5e9', text: '#2e7d32' };
+      if(e.includes('mantenimiento') || e.includes('licencia') || e.includes('inactivo')) return { bg: '#fff3e0', text: '#ef6c00' };
+      return { bg: '#ffebee', text: '#c62828' };
   };
 
   const handleDelete = async () => {
@@ -113,7 +120,6 @@ export default function ArticulosPage() {
             modelName="articulos"
             headers={['Codigo', 'Descripcion', 'UM General', 'UM Intermedia', 'UM Especial', 'Categoria']}
             onSuccess={() => {
-                // Refresh list logic
                 const fetchArticulos = async () => {
                     try {
                         setLoading(true);
@@ -138,38 +144,43 @@ export default function ArticulosPage() {
                 <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('descripcion')}>Descripción {sortColumn==='descripcion'&&(sortDirection==='asc'?'▲':'▼')}</th>
                 <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('unidad_medida_general_descripcion')}>U.M. General {sortColumn==='unidad_medida_general_descripcion'&&(sortDirection==='asc'?'▲':'▼')}</th>
                 <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('categoria_descripcion')}>Categoría {sortColumn==='categoria_descripcion'&&(sortDirection==='asc'?'▲':'▼')}</th>
-                <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('estado')}>Estado {sortColumn==='estado'&&(sortDirection==='asc'?'▲':'▼')}</th>
+                <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('estado_descripcion')}>Estado {sortColumn==='estado_descripcion'&&(sortDirection==='asc'?'▲':'▼')}</th>
                 <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('fecha_creacion')}>F. Creación {sortColumn==='fecha_creacion'&&(sortDirection==='asc'?'▲':'▼')}</th>
                 <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px',cursor:'pointer',userSelect:'none',whiteSpace:'nowrap'}} onClick={()=>handleSort('usuario_creacion_nombre')}>Usuario {sortColumn==='usuario_creacion_nombre'&&(sortDirection==='asc'?'▲':'▼')}</th>
                 <th style={{background:'linear-gradient(135deg, #1565c0 0%, #1976d2 100%)',color:'#fff',padding:'16px',textAlign:'left',fontWeight:'600',fontSize:'14px',textTransform:'uppercase',letterSpacing:'0.5px'}}>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {filteredArticulos.map(a=>(
-                <tr key={a.id} style={{borderBottom:'1px solid #f0f0f0'}}>
-                  <td style={{padding:'16px',fontSize:'14px',color:'#333',fontWeight:'600'}}>{a.codigo || '-'}</td>
-                  <td style={{padding:'16px',fontSize:'14px',color:'#333',fontWeight:'500'}}>{a.descripcion}</td>
-                  <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{a.unidad_medida_general_descripcion}</td>
-                  <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{a.categoria_descripcion || '-'}</td>
-                  <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>
-                    {a.eliminado ? (
-                        <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:'#ffcdd2',color:'#b71c1c'}}>Eliminado</span>
-                    ) : (
-                        <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:a.estado?'#e8f5e9':'#ffebee',color:a.estado?'#2e7d32':'#c62828'}}>{a.estado?'Activo':'Inactivo'}</span>
-                    )}
-                  </td>
-                  <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{formatDate(a.fecha_creacion)}</td>
-                  <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{a.usuario_creacion_nombre || '-'}</td>
-                  <td style={{padding:'16px',display:'flex',gap:'10px'}}>
-                    {!a.eliminado && (
-                        <div style={{display:'flex',gap:'10px'}}>
-                        <button onClick={()=>router.push(`/maestras/articulos/${a.id}/edit`)} style={{padding:'8px',border:'none',background:'transparent',color:'#1976d2',cursor:'pointer',fontSize:'16px'}} title="Editar"><i className="fa fa-edit"></i></button>
-                        <button onClick={()=>confirmDelete(a)} style={{padding:'8px',border:'none',background:'transparent',color:'#d32f2f',cursor:'pointer',fontSize:'16px'}} title="Eliminar"><i className="fa fa-trash"></i></button>
-                        </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {filteredArticulos.map((a) => {
+                const badge = getBadgeColor(a.estado_descripcion);
+                return (
+                  <tr key={a.id} style={{borderBottom:'1px solid #f0f0f0'}}>
+                    <td style={{padding:'16px',fontSize:'14px',color:'#333',fontWeight:'600'}}>{a.codigo || '-'}</td>
+                    <td style={{padding:'16px',fontSize:'14px',color:'#333',fontWeight:'500'}}>{a.descripcion}</td>
+                    <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{a.unidad_medida_general_descripcion}</td>
+                    <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{a.categoria_descripcion || '-'}</td>
+                    <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>
+                      {a.eliminado ? (
+                          <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:'#ffcdd2',color:'#b71c1c'}}>Eliminado</span>
+                      ) : (
+                          <span style={{padding:'6px 14px',borderRadius:'20px',fontSize:'13px',fontWeight:'600',display:'inline-block',background:badge.bg,color:badge.text}}>
+                              {a.estado_descripcion || 'Sin Asignar'}
+                          </span>
+                      )}
+                    </td>
+                    <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{formatDate(a.fecha_creacion)}</td>
+                    <td style={{padding:'16px',fontSize:'14px',color:'#333'}}>{a.usuario_creacion_nombre || '-'}</td>
+                    <td style={{padding:'16px',display:'flex',gap:'10px'}}>
+                      {!a.eliminado && (
+                          <div style={{display:'flex',gap:'10px'}}>
+                          <button onClick={()=>router.push(`/maestras/articulos/${a.id}/edit`)} style={{padding:'8px',border:'none',background:'transparent',color:'#1976d2',cursor:'pointer',fontSize:'16px'}} title="Editar"><i className="fa fa-edit"></i></button>
+                          <button onClick={()=>confirmDelete(a)} style={{padding:'8px',border:'none',background:'transparent',color:'#d32f2f',cursor:'pointer',fontSize:'16px'}} title="Eliminar"><i className="fa fa-trash"></i></button>
+                          </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
               {filteredArticulos.length===0 && (
                 <tr>
                   <td colSpan="8" style={{padding:'40px',textAlign:'center',color:'#666',fontSize:'15px',fontStyle:'italic'}}>

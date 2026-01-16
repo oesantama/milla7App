@@ -47,7 +47,7 @@ Registro del personal de conducción.
 | `nombre` | CharField(100) | Nombre completo | No Null |
 | `celular` | CharField(15) | Teléfono contacto | No Null |
 | `licencia` | JSONField | Categorías de licencia | Default: `list` |
-| `activo` | BooleanField | Estado operativo | Default: `True` |
+| `estado` | ForeignKey | -> `maestras.MasterEstado` | Nullable, OnDelete: SET_NULL |
 | `eliminado` | BooleanField | Borrado lógico | Default: `False` |
 | `fecha_creacion` | DateTimeField | Auditoría | AutoNowAdd |
 | `fecha_modificacion` | DateTimeField | Auditoría | AutoNow |
@@ -62,7 +62,7 @@ Empresas o clientes gestionados.
 | `id` | AutoField | PK | Autoincremental |
 | `nombre` | CharField(150) | Razón social | No Null |
 | `logo` | ImageField | Archivo de imagen | Nullable |
-| `estado` | BooleanField | Activo/Inactivo | Default: `True` |
+| `estado` | ForeignKey | -> `maestras.MasterEstado` | Nullable, OnDelete: SET_NULL |
 | `eliminado` | BooleanField | Borrado lógico | Default: `False` |
 | `fecha_creacion` | DateTimeField | Auditoría | AutoNowAdd |
 | `fecha_modificacion` | DateTimeField | Auditoría | AutoNow |
@@ -127,7 +127,7 @@ Maestro de SKUs/Productos.
 | `factor_intermedio` | FloatField | Conversión media | Default: `1.0` |
 | `factor_especial` | FloatField | Conversión especial | Default: `1.0` |
 | `categoria` | ForeignKey | -> `core.Categoria` | Nullable |
-| `estado` | BooleanField | Activo/Inactivo | Default: `True` |
+| `estado` | ForeignKey | -> `maestras.MasterEstado` | Nullable, OnDelete: SET_NULL |
 | `eliminado` | BooleanField | Borrado lógico | Default: `False` |
 | `fecha_creacion` | DateTimeField | Auditoría | AutoNowAdd |
 | `fecha_modificacion` | DateTimeField | Auditoría | AutoNow |
@@ -188,7 +188,7 @@ Roles de usuario.
 | :--- | :--- | :--- | :--- |
 | `id_rol` | AutoField | PK | Autoincremental |
 | `descripcion_rol` | CharField(100) | Nombre Rol | **Unique**, No Null |
-| `estado` | BooleanField | Activo/Inactivo | Default: `True` |
+| `estado` | ForeignKey | -> `maestras.MasterEstado` | Nullable, OnDelete: SET_NULL |
 | `fecha_creacion` | DateTimeField | Auditoría | AutoNowAdd |
 
 #### Tabla: `PermisoPorRol`

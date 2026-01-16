@@ -64,6 +64,16 @@ DATABASES = {
     }
 }
 
+# Usar SQLite para tests (más rápido y no requiere PostgreSQL)
+import sys
+if 'test' in sys.argv or 'test_coverage' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8036",  # Producción (Nginx)
     "http://localhost:3000",  # Desarrollo (Next.js dev server)

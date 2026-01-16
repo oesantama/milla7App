@@ -20,9 +20,10 @@ class ModuloSerializer(serializers.ModelSerializer):
         fields = ['id', 'descripcion_modulo', 'estado', 'es_expansivo', 'route', 'paginas', 'order']
 
 class RolSerializer(serializers.ModelSerializer):
+    estado_descripcion = serializers.ReadOnlyField(source='estado.descripcion')
     class Meta:
         model = Rol
-        fields = ['id_rol', 'descripcion_rol', 'estado', 'fecha_creacion']
+        fields = ['id_rol', 'descripcion_rol', 'estado', 'estado_descripcion', 'fecha_creacion']
 
 class NestedPaginaSerializer(serializers.ModelSerializer):
     modulo = serializers.StringRelatedField()

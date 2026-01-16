@@ -24,7 +24,8 @@ const CATEGORIAS_LICENCIA = [
 ];
 
 export default function EditConductorPage() {
-  const [formData, setFormData] = useState({ cedula: '', nombre: '', celular: '', licencia: [], activo: true });
+  const [formData, setFormData] = useState({ cedula: '', nombre: '', celular: '', licencia: [], estado: '' });
+  const [estados, setEstados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -35,17 +36,20 @@ export default function EditConductorPage() {
 
   useEffect(() => {
     if (!isAuthenticated || !token) { router.push('/'); return; }
+    
+    // Fetch states
+    axios.get('/api/maestras/master-estados/?estado=true', { headers: { Authorization: `Bearer ${token}` } })
+         .then(res => setEstados(res.data))
+         .catch(err => console.error("Error cargando estados", err));
+
     const fetchConductor = async () => {
       try {
         const response = await axios.get(`/api/core/conductores/${cedula}/`, { headers: { Authorization: `Bearer ${token}` } });
-        console.log('Datos del conductor:', response.data);
-        console.log('Licencia recibida:', response.data.licencia, 'Tipo:', typeof response.data.licencia);
-        // Asegurar que licencia sea un array válido
+        
         let licencia = [];
         if (Array.isArray(response.data.licencia)) {
           licencia = response.data.licencia;
         } else if (typeof response.data.licencia === 'string' && response.data.licencia) {
-          // Si es string, convertir a array
           licencia = [response.data.licencia];
         }
         setFormData({ 
@@ -53,7 +57,7 @@ export default function EditConductorPage() {
           nombre: response.data.nombre,
           celular: response.data.celular,
           licencia: licencia,
-          activo: response.data.activo
+          estado: response.data.estado || ''
         });
       } catch (err) {
         console.error('Error al cargar conductor:', err);
@@ -81,8 +85,8 @@ export default function EditConductorPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.nombre.trim() || !formData.celular.trim()) { 
-      setError('Nombre y celular son requeridos'); 
+    if (!formData.nombre.trim() || !formData.celular.trim() || !formData.estado) { 
+      setError('Nombre, celular y estado son requeridos'); 
       return; 
     }
     if (formData.licencia.length === 0) {
@@ -162,10 +166,21 @@ export default function EditConductorPage() {
           </div>
           
           <div style={{marginBottom:'25px'}}>
-            <label style={{display:'flex',alignItems:'center',fontSize:'15px',color:'#333',cursor:'pointer'}}>
-              <input type="checkbox" name="activo" checked={formData.activo} onChange={handleChange} style={{width:'20px',height:'20px',cursor:'pointer'}} />
-              <span style={{marginLeft:'8px'}}>Activo</span>
+            <label style={{display:'block',marginBottom:'8px',fontSize:'14px',fontWeight:'600',color:'#333'}}>
+              Estado <span style={{color:'#d32f2f'}}>*</span>
             </label>
+            <select
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              style={{width:'100%',padding:'12px 16px',border:'2px solid #e0e0e0',borderRadius:'8px',fontSize:'15px',outline:'none',boxSizing:'border-box'}}
+              required
+            >
+                <option value="">Seleccione un estado...</option>
+                {estados.map(e => (
+                    <option key={e.id} value={e.id}>{e.descripcion}</option>
+                ))}
+            </select>
           </div>
           
           <div style={{display:'flex',gap:'12px',marginTop:'30px'}}>
